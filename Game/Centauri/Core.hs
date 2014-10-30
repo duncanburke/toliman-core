@@ -5,10 +5,8 @@
    maintaner   : Duncan Burke <duncankburke@gmail.cmo>
 -}
 module Game.Centauri.Core
-       ( GameState,
-         GameMap,
-         Planar,
-         Hex ) where
+       ( module Core.State,
+         module Core.Map ) where
 
-import Game.Centauri.Core.State
-import Game.Centauri.Core.Map
+import Game.Centauri.Core.State as Core.State
+import Game.Centauri.Core.Map as Core.Map
