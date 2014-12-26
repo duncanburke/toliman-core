@@ -1,47 +1,39 @@
 
 module Game.Toliman.Internal.Lens (
   module Control.Lens,
-  use, (^=.),
+  use,
   assign, (.=),
-  use_ref, (^*.),
-  assign_ref, (.*)
+  access,
+  store, (.*),
+  accessPrism
   ) where
 
-import Monad.State
-import Monad.Reader
-import Data.IORef
-import Control.Monad.Lift.IO
+import Data.Monoid as Monoid (First)
+import Control.Applicative ((<$>))
 
+import Monad.State (MonadState(..), gets)
+import Control.Monad.Lift.IO (MonadIO)
 import Control.Lens hiding (use, assign, (.=))
 
+import Monad.Ref (MonadRef(..))
 
 use :: MonadState s m => Getting a s a -> m a
 use l = gets $ view l
 
-(^=.) :: MonadState s m => Getting a s a -> m a
-(^=.) = use
+assign :: (MonadState s m, Functor m) => ASetter s s a b -> b -> m ()
+assign l x = (& l .~ x) <$> get >>= put
 
-assign :: MonadState s m => ASetter s s a b -> b -> m ()
-assign l x = do
-  s <- get
-  put $ s & l .~ x
-
-(.=) :: MonadState s m => ASetter s s a b -> b -> m ()
+(.=) :: (MonadState s m, Functor m) => ASetter s s a b -> b -> m ()
 (.=) = assign
 
-use_ref :: (MonadReader (IORef s) m, MonadIO m) => Getting a s a -> m a
-use_ref l = do
-  s <- ask >>= liftIO . readIORef
-  return $ s ^. l
+access :: (MonadRef s m, MonadIO m) => Getting a s a -> m a
+access l = (^. l) <$> getRef
 
-(^*.) :: (MonadReader (IORef s) m, MonadIO m) => Getting a s a -> m a
-(^*.) = use_ref
+store :: (MonadRef s m, MonadIO m) => ASetter s s a b -> b -> m ()
+store l x = (& l .~ x) <$> getRef >>= putRef
 
-assign_ref :: (MonadReader (IORef s) m, MonadIO m) => ASetter s s a b -> b -> m ()
-assign_ref l x = do
-  ref <- ask
-  s <- liftIO $ readIORef ref
-  liftIO $ writeIORef ref $ s & l .~ x
+(.*) :: (MonadRef s m, MonadIO m) => ASetter s s a b -> b -> m ()
+(.*) = store
 
-(.*) :: (MonadReader (IORef s) m, MonadIO m) => ASetter s s a b -> b -> m ()
-(.*) = assign_ref
+accessPrism :: (MonadRef s m, MonadIO m) => Getting (Monoid.First a) s a -> m (Maybe a)
+accessPrism l = (^? l) <$> getRef

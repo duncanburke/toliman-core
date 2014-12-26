@@ -18,7 +18,8 @@ library
                        lens>=4.6,
                        layers
   default-language:    Haskell2010
-  exposed-modules:     Game.Toliman.Core,
+  exposed-modules:     Monad.Ref,
+                       Game.Toliman.Core,
                        Game.Toliman.Internal.Lens
   default-extensions:  ViewPatterns,
                        NamedFieldPuns,
