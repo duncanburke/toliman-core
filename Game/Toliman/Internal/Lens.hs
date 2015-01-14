@@ -12,7 +12,6 @@ import Data.Monoid as Monoid (First)
 import Control.Applicative ((<$>))
 
 import Monad.State (MonadState(..), gets)
-import Control.Monad.Lift.IO (MonadIO)
 import Control.Lens hiding (use, assign, (.=))
 
 import Monad.Ref (MonadRef(..))
@@ -26,14 +25,14 @@ assign l x = (& l .~ x) <$> get >>= put
 (.=) :: (MonadState s m, Functor m) => ASetter s s a b -> b -> m ()
 (.=) = assign
 
-access :: (MonadRef s m, MonadIO m) => Getting a s a -> m a
+access :: (MonadRef s m) => Getting a s a -> m a
 access l = (^. l) <$> getRef
 
-store :: (MonadRef s m, MonadIO m) => ASetter s s a b -> b -> m ()
+store :: (MonadRef s m) => ASetter s s a b -> b -> m ()
 store l x = (& l .~ x) <$> getRef >>= putRef
 
 (.*) :: (MonadRef s m, MonadIO m) => ASetter s s a b -> b -> m ()
 (.*) = store
 
-accessPrism :: (MonadRef s m, MonadIO m) => Getting (Monoid.First a) s a -> m (Maybe a)
+accessPrism :: (MonadRef s m) => Getting (Monoid.First a) s a -> m (Maybe a)
 accessPrism l = (^? l) <$> getRef
