@@ -4,7 +4,7 @@ module Game.Toliman.Internal.Lens (
   use,
   assign, (.=),
   access,
-  store, (.*),
+  store, (.*=),
   accessPrism
   ) where
 
@@ -31,8 +31,8 @@ access l = (^. l) <$> getRef
 store :: (MonadRef s m) => ASetter s s a b -> b -> m ()
 store l x = (& l .~ x) <$> getRef >>= putRef
 
-(.*) :: (MonadRef s m, MonadIO m) => ASetter s s a b -> b -> m ()
-(.*) = store
+(.*=) :: (MonadRef s m) => ASetter s s a b -> b -> m ()
+(.*=) = store
 
 accessPrism :: (MonadRef s m) => Getting (Monoid.First a) s a -> m (Maybe a)
 accessPrism l = (^? l) <$> getRef
