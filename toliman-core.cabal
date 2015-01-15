@@ -17,11 +17,13 @@ library
                        bytestring,
                        lens>=4.6,
                        layers,
-                       transformers
+                       transformers,
+                       template-haskell,
   default-language:    Haskell2010
   exposed-modules:     Monad.Ref,
                        Game.Toliman.Core,
-                       Game.Toliman.Internal.Lens
+                       Game.Toliman.Internal.Lens,
+                       Game.Toliman.Internal.Types,
   default-extensions:  ViewPatterns,
                        PatternSynonyms,
                        NamedFieldPuns,
