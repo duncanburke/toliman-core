@@ -2,10 +2,12 @@
 
 module Monad.Ref (
   MonadRef (..),
+  modifyRef,
   RefT,
   runRefT
   ) where
 
+import Data.Functor ((<$>))
 import Data.IORef (IORef, readIORef, writeIORef, newIORef)
 
 import Control.Monad.Trans.Reader (ReaderT, runReaderT)
@@ -15,6 +17,9 @@ import Monad.Reader (MonadReader(..))
 class (MonadIO m, Monad m, Functor m) => MonadRef s m | m -> s where
   getRef :: m s
   putRef :: s -> m ()
+
+modifyRef :: (MonadRef s m) => (s -> s) -> m ()
+modifyRef f = f <$> getRef >>= putRef
 
 instance (MonadIO m, MonadReader (IORef a) m, Functor m) => MonadRef a m where
   getRef = ask >>= liftIO . readIORef
