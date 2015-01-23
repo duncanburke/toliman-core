@@ -19,7 +19,8 @@ library
                        layers,
                        transformers,
                        template-haskell,
-                       sodium
+                       sodium,
+                       dequeue
   default-language:    Haskell2010
   exposed-modules:     Monad.Ref,
                        Game.Toliman.Core,
