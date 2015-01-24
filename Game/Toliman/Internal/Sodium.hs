@@ -22,54 +22,54 @@ module Game.Toliman.Internal.Sodium (
 
 import Data.Functor ((<$>))
 import FRP.Sodium hiding (newBehavior, sync)
-import qualified FRP.Sodium as Sodium
+import qualified FRP.Sodium as Sodium (sync)
 import Control.Monad.Lift.IO (MonadIO, liftIO)
 import qualified Data.Dequeue as Dequeue
 
 import Game.Toliman.Internal.Types
 
-sync :: (MonadIO m) => Sodium.Reactive a -> m a
+sync :: (MonadIO m) => Reactive a -> m a
 sync = liftIO . Sodium.sync
 
 
 data PushEvent a =
   PushEvent {
-    _naev_event :: Sodium.Event a,
-    _naev_push :: a -> Sodium.Reactive ()}
+    _naev_event :: Event a,
+    _naev_push :: a -> Reactive ()}
 
 makeUnderscoreFields ''PushEvent
 
 pushEvent :: Reactive (PushEvent a)
 pushEvent = do
-  (_naev_event, _naev_push) <- Sodium.newEvent
+  (_naev_event, _naev_push) <- newEvent
   return PushEvent {..}
 
 
 data SetBehaviour a =
   SetBehaviour {
-    _nabv_behaviour :: Sodium.Behaviour a,
-    _nabv_set :: a -> Sodium.Reactive ()}
+    _nabv_behaviour :: Behaviour a,
+    _nabv_set :: a -> Reactive ()}
 
 makeUnderscoreFields ''SetBehaviour
 
 setBehaviour :: a -> Reactive (SetBehaviour a)
 setBehaviour x = do
-  (_nabv_behaviour, _nabv_set) <- Sodium.newBehavior x
+  (_nabv_behaviour, _nabv_set) <- newBehaviour x
   return SetBehaviour {..}
 
 
 data PushBehaviour e s =
   PushBehaviour {
-    _napv_behaviour :: Sodium.Behaviour s,
-    _napv_event :: e -> Sodium.Reactive ()}
+    _napv_behaviour :: Behaviour s,
+    _napv_event :: e -> Reactive ()}
 
 makeUnderscoreFields ''PushBehaviour
 
 pushBehaviour :: (e -> s -> s) -> s  -> Reactive (PushBehaviour e s)
 pushBehaviour f z = do
-  (e, _napv_event) <- Sodium.newEvent
+  (e, _napv_event) <- newEvent
   rec
-    (_napv_behaviour :: Sodium.Behaviour s) <- hold z es
+    (_napv_behaviour :: Behaviour s) <- hold z es
     let es = snapshot f e _napv_behaviour
   return PushBehaviour {..}
 
