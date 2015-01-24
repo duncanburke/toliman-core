@@ -14,6 +14,8 @@ module Game.Toliman.Internal.Sodium (
   messageBus,
   getMessages,
   pushMessage,
+  ReactivePushBehaviour,
+  reactivePushBehaviour,
   Has_event(..),
   Has_push(..),
   Has_behaviour(..),
@@ -94,3 +96,19 @@ getMessages (MessageBus (PushBehaviour {..})) = do
 
 pushMessage :: MessageBus a -> a -> Reactive ()
 pushMessage (MessageBus (PushBehaviour {..})) = _napv_event . PushMessage
+
+
+data ReactivePushBehaviour e s =
+  ReactivePushBehaviour {
+    _narpv_behaviour :: Behaviour s,
+    _narpv_event :: e -> Reactive ()}
+
+makeUnderscoreFields ''ReactivePushBehaviour
+
+reactivePushBehaviour :: (e -> s -> Reactive s) -> s -> Reactive (ReactivePushBehaviour e s)
+reactivePushBehaviour f z = do
+  (e, narpv_event) <- newEvent
+  rec
+    (_narpv_behaviour :: Behaviour s) <- hold z es
+    let es = execute $ snapshot f e _narpv_behaviour
+  return ReactivePushBehaviour {..}
